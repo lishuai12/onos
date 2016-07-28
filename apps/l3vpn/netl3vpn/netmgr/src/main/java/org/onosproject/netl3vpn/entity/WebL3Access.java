@@ -15,7 +15,10 @@
  */
 package org.onosproject.netl3vpn.entity;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.util.Objects;
 
 /**
  * Immutable representation of a web l3 access.
@@ -38,7 +41,29 @@ public final class WebL3Access {
      *
      * @return address
      */
-    public String getAddress() {
+    public String address() {
         return address;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(address);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof WebL3Access) {
+            final WebL3Access webL3Access = (WebL3Access) obj;
+            return Objects.equals(this.address, webL3Access.address());
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return toStringHelper(this).add("address", this.address).toString();
     }
 }

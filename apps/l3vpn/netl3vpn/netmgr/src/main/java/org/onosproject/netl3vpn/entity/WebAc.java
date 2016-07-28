@@ -15,7 +15,10 @@
  */
 package org.onosproject.netl3vpn.entity;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.util.Objects;
 
 /**
  * Immutable representation of a web ac.
@@ -51,7 +54,7 @@ public final class WebAc {
      *
      * @return ac id
      */
-    public String getId() {
+    public String id() {
         return id;
     }
 
@@ -60,7 +63,7 @@ public final class WebAc {
      *
      * @return ne id
      */
-    public String getNeId() {
+    public String neId() {
         return neId;
     }
 
@@ -69,7 +72,7 @@ public final class WebAc {
      *
      * @return l2 access
      */
-    public WebL2Access getL2Access() {
+    public WebL2Access l2Access() {
         return l2Access;
     }
 
@@ -78,7 +81,37 @@ public final class WebAc {
      *
      * @return l3 access
      */
-    public WebL3Access getL3Access() {
+    public WebL3Access l3Access() {
         return l3Access;
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, neId, l2Access, l3Access);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof WebAc) {
+            final WebAc webAc = (WebAc) obj;
+            return Objects.equals(this.id, webAc.id())
+                    && Objects.equals(this.neId, webAc.neId())
+                    && Objects.equals(this.l2Access, webAc.l2Access())
+                    && Objects.equals(this.l3Access, webAc.l3Access());
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return toStringHelper(this)
+                .add("id", this.id)
+                .add("neId", this.neId)
+                .add("l2Access", this.l2Access.toString())
+                .add("l2Access", this.l3Access.toString()).toString();
+    }
+    
 }
