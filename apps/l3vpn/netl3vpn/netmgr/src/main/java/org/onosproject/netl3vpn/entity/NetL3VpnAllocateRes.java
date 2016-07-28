@@ -15,8 +15,12 @@
  */
 package org.onosproject.netl3vpn.entity;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Resource allocate class.
@@ -34,7 +38,12 @@ public final class NetL3VpnAllocateRes {
      * @param vrfName
      */
     public NetL3VpnAllocateRes(List<String> routeTargets,
-                               Map<String, String> routeDistinguisherMap, String vrfName) {
+                               Map<String, String> routeDistinguisherMap,
+                               String vrfName) {
+        checkNotNull(routeTargets, "routeTargets is not null");
+        checkNotNull(routeDistinguisherMap,
+                     "routeDistinguisherMap is not null");
+        checkNotNull(vrfName, "vrfName is not null");
         this.routeTargets = routeTargets;
         this.routeDistinguisherMap = routeDistinguisherMap;
         this.vrfName = vrfName;
@@ -45,7 +54,7 @@ public final class NetL3VpnAllocateRes {
      *
      * @return list of route target
      */
-    public List<String> getRouteTargets() {
+    public List<String> routeTargets() {
         return routeTargets;
     }
 
@@ -54,7 +63,7 @@ public final class NetL3VpnAllocateRes {
      *
      * @return map of route distinguisher
      */
-    public Map<String, String> getRouteDistinguisherMap() {
+    public Map<String, String> routeDistinguisherMap() {
         return routeDistinguisherMap;
     }
 
@@ -63,8 +72,36 @@ public final class NetL3VpnAllocateRes {
      *
      * @return vrf name
      */
-    public String getVrfName() {
+    public String vrfName() {
         return vrfName;
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(routeTargets, routeDistinguisherMap, vrfName);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof NetL3VpnAllocateRes) {
+            final NetL3VpnAllocateRes netL3VpnAllocateRes = (NetL3VpnAllocateRes) obj;
+            return Objects.equals(this.routeTargets,
+                                  netL3VpnAllocateRes.routeTargets)
+                    && Objects.equals(this.routeDistinguisherMap,
+                                      netL3VpnAllocateRes.routeDistinguisherMap)
+                    && Objects.equals(this.vrfName,
+                                      netL3VpnAllocateRes.vrfName);
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return toStringHelper(this).add("routeTargets", routeTargets.toString())
+                .add("routeDistinguisherMap", routeDistinguisherMap.toString())
+                .add("vrfName", vrfName).toString();
+    }
 }

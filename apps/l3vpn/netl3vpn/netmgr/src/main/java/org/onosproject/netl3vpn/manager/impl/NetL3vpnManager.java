@@ -179,7 +179,7 @@ public class NetL3vpnManager implements NetL3vpnService {
         }
         NeData neData = decompNeData(webNetL3vpnInstance, l3VpnAllocateRes);
         if (l3vpnNeService.createL3vpn(neData)) {
-            webNetL3vpnStore.put(webNetL3vpnInstance.getId(),
+            webNetL3vpnStore.put(webNetL3vpnInstance.id(),
                                  webNetL3vpnInstance);
             for (VpnInstance vpnInstance : neData.vpnInstanceList()) {
                 vpnInstanceStore.put(vpnInstance.neId(), vpnInstance);
@@ -205,13 +205,13 @@ public class NetL3vpnManager implements NetL3vpnService {
 
         Map<String, List<String>> acIdsByNeMap = new HashMap<String, List<String>>();
         Map<String, List<WebAc>> acsByNeMap = new HashMap<String, List<WebAc>>();
-        for (WebAc webAc : webNetL3vpnInstance.getAcList()) {
-            String neId = webAc.getNeId();
+        for (WebAc webAc : webNetL3vpnInstance.acList()) {
+            String neId = webAc.neId();
             List<String> acIdsByNeList = acIdsByNeMap.get(neId);
             if (acIdsByNeList == null) {
                 acIdsByNeList = new ArrayList<String>();
             }
-            acIdsByNeList.add(webAc.getId());
+            acIdsByNeList.add(webAc.id());
             acIdsByNeMap.put(neId, acIdsByNeList);
             List<WebAc> acsByNeList = acsByNeMap.get(neId);
             if (acsByNeList == null) {
@@ -238,13 +238,13 @@ public class NetL3vpnManager implements NetL3vpnService {
                                                 WebNetL3vpnInstance webNetL3vpnInstance,
                                                 NetL3VpnAllocateRes l3VpnAllocateRes) {
         List<VpnInstance> vpnInstanceList = new ArrayList<VpnInstance>();
-        for (String neId : webNetL3vpnInstance.getNeIdList()) {
-            String vrfName = l3VpnAllocateRes.getVrfName();
-            String netVpnId = webNetL3vpnInstance.getId();
+        for (String neId : webNetL3vpnInstance.neIdList()) {
+            String vrfName = l3VpnAllocateRes.vrfName();
+            String netVpnId = webNetL3vpnInstance.id();
             String routeDistinguisher = l3VpnAllocateRes
-                    .getRouteDistinguisherMap().get(neId);
-            List<String> importTargets = l3VpnAllocateRes.getRouteTargets();
-            List<String> exportTargets = l3VpnAllocateRes.getRouteTargets();
+                    .routeDistinguisherMap().get(neId);
+            List<String> importTargets = l3VpnAllocateRes.routeTargets();
+            List<String> exportTargets = l3VpnAllocateRes.routeTargets();
             List<String> acIdList = acIdsByNeMap.get(neId);
 
             BgpImportProtocol bgpImportProtocol = new BgpImportProtocol(ProtocolType.DIRECT,
@@ -275,20 +275,20 @@ public class NetL3vpnManager implements NetL3vpnService {
     private List<VpnAc> decompVpnAc(Map<String, List<WebAc>> acsByNeMap,
                                     WebNetL3vpnInstance webNetL3vpnInstance) {
         List<VpnAc> vpnAcList = new ArrayList<VpnAc>();
-        String netVpnId = webNetL3vpnInstance.getId();
-        for (String neId : webNetL3vpnInstance.getNeIdList()) {
+        String netVpnId = webNetL3vpnInstance.id();
+        for (String neId : webNetL3vpnInstance.neIdList()) {
             List<WebAc> webAcList = acsByNeMap.get(neId);
             for (WebAc webAc : webAcList) {
-                String acId = webAc.getId();
+                String acId = webAc.id();
                 Port port = deviceService
                         .getPort(DeviceId.deviceId(neId),
-                                 PortNumber.portNumber(webAc.getL2Access()
-                                         .getPort().getLtpId()));
+                                 PortNumber.portNumber(webAc.l2Access()
+                                         .port().ltpId()));
                 String acName = port.annotations()
                         .value(AnnotationKeys.PORT_NAME);
-                String ipAddress = webAc.getL3Access().getAddress();
-                int subNetMask = Integer.parseInt(webAc.getL3Access()
-                        .getAddress().split("/")[1]);
+                String ipAddress = webAc.l3Access().address();
+                int subNetMask = Integer.parseInt(webAc.l3Access()
+                        .address().split("/")[1]);
                 VpnAc vpnAc = new VpnAc(netVpnId, acId, acName, ipAddress,
                                         subNetMask);
                 vpnAcList.add(vpnAc);
@@ -347,8 +347,8 @@ public class NetL3vpnManager implements NetL3vpnService {
     private boolean checkOccupiedResource(WebNetL3vpnInstance webNetL3vpnInstance) {
         for (Entry<String, WebNetL3vpnInstance> entry : webNetL3vpnStore
                 .entrySet()) {
-            if ((entry.getKey() == webNetL3vpnInstance.getId()) || (entry
-                    .getValue().getName() == webNetL3vpnInstance.getName())) {
+            if ((entry.getKey() == webNetL3vpnInstance.id()) || (entry
+                    .getValue().name() == webNetL3vpnInstance.name())) {
                 return false;
             }
         }
@@ -363,7 +363,7 @@ public class NetL3vpnManager implements NetL3vpnService {
     private NetL3VpnAllocateRes applyResource(WebNetL3vpnInstance webNetL3vpnInstance) {
         String routeTarget = allocateResource(RT, webNetL3vpnInstance);
         Map<String, String> routeDistinguisherMap = new HashMap<String, String>();
-        for (String neId : webNetL3vpnInstance.getNeIdList()) {
+        for (String neId : webNetL3vpnInstance.neIdList()) {
             String routeDistinguisher = allocateResource(RD,
                                                          webNetL3vpnInstance);
             routeDistinguisherMap.put(neId, routeDistinguisher);
@@ -395,12 +395,12 @@ public class NetL3vpnManager implements NetL3vpnService {
             specificLabelId = defaultLabelResource.labelResourceId();
             if (specificLabelId == null) {
                 log.error("Unable to retrieve {} label for a vpn id {}.",
-                          allocateType, webNetL3vpnInstance.getId());
+                          allocateType, webNetL3vpnInstance.id());
                 return null;
             }
         } else {
             log.error("Unable to allocate {} label for a vpn id {}.",
-                      allocateType, webNetL3vpnInstance.getId());
+                      allocateType, webNetL3vpnInstance.id());
             return null;
         }
         switch (allocateType) {
@@ -412,7 +412,7 @@ public class NetL3vpnManager implements NetL3vpnService {
             return VRF_PREFIX + specificLabelId.id();
         default:
             log.error("Unable to allocate {} label for a vpn id {}.",
-                      allocateType, webNetL3vpnInstance.getId());
+                      allocateType, webNetL3vpnInstance.id());
             return null;
         }
     }

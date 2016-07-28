@@ -15,7 +15,10 @@
  */
 package org.onosproject.netl3vpn.entity;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.util.Objects;
 
 /**
  * Immutable representation of a web l2 access.
@@ -59,7 +62,7 @@ public final class WebL2Access {
      *
      * @return l2 access type
      */
-    public L2AccessType getAccessType() {
+    public L2AccessType accessType() {
         return accessType;
     }
 
@@ -68,7 +71,32 @@ public final class WebL2Access {
      *
      * @return port
      */
-    public WebPort getPort() {
+    public WebPort port() {
         return port;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(port, accessType);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof WebL2Access) {
+            final WebL2Access webL2Access = (WebL2Access) obj;
+            return Objects.equals(this.port, webL2Access.port())
+                    && Objects.equals(this.accessType, webL2Access.accessType);
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return toStringHelper(this)
+                .add("port", this.port.ltpId())
+                .add("accessType", String.valueOf(this.accessType().value)).toString();
     }
 }

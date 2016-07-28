@@ -15,9 +15,11 @@
  */
 package org.onosproject.netl3vpn.entity;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Immutable representation of a web l3 vpn network instance.
@@ -74,7 +76,7 @@ public final class WebNetL3vpnInstance {
      *
      * @return id
      */
-    public String getId() {
+    public String id() {
         return id;
     }
 
@@ -83,7 +85,7 @@ public final class WebNetL3vpnInstance {
      *
      * @return name
      */
-    public String getName() {
+    public String name() {
         return name;
     }
 
@@ -92,7 +94,7 @@ public final class WebNetL3vpnInstance {
      *
      * @return topo mode type
      */
-    public TopoModeType getMode() {
+    public TopoModeType mode() {
         return mode;
     }
 
@@ -101,7 +103,7 @@ public final class WebNetL3vpnInstance {
      *
      * @return ne id list
      */
-    public List<String> getNeIdList() {
+    public List<String> neIdList() {
         return neIdList;
     }
 
@@ -110,7 +112,38 @@ public final class WebNetL3vpnInstance {
      *
      * @return ac list
      */
-    public List<WebAc> getAcList() {
+    public List<WebAc> acList() {
         return acList;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, mode, neIdList, acList);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof WebNetL3vpnInstance) {
+            final WebNetL3vpnInstance webNetL3vpnInstance = (WebNetL3vpnInstance) obj;
+            return Objects.equals(this.id, webNetL3vpnInstance.id())
+                    && Objects.equals(this.name, webNetL3vpnInstance.name())
+                    && Objects.equals(this.mode, webNetL3vpnInstance.mode())
+                    && Objects.equals(this.neIdList, webNetL3vpnInstance.neIdList())
+                    && Objects.equals(this.acList, webNetL3vpnInstance.acList()) ;
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return toStringHelper(this)
+                .add("id", this.id)
+                .add("name", this.name)
+                .add("mode", this.mode().toString())
+                .add("neIdList", this.neIdList().toString())
+                .add("acList", this.acList.toString()).toString();
     }
 }

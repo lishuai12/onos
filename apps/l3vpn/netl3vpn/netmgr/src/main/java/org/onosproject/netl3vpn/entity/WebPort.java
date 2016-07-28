@@ -15,7 +15,10 @@
  */
 package org.onosproject.netl3vpn.entity;
 
+import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.util.Objects;
 
 /**
  * Immutable representation of a web port.
@@ -39,7 +42,30 @@ public final class WebPort {
      *
      * @return ltp id
      */
-    public String getLtpId() {
+    public String ltpId() {
         return ltpId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(ltpId);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof WebPort) {
+            final WebPort webPort = (WebPort) obj;
+            return Objects.equals(this.ltpId, webPort.ltpId);
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return toStringHelper(this)
+                .add("ltpId", this.ltpId).toString();
     }
 }
