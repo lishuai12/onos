@@ -40,26 +40,27 @@ import org.onosproject.ne.VrfEntity;
 import org.onosproject.ne.manager.L3vpnNeService;
 import org.onosproject.ne.util.DataConvertUtil;
 import org.onosproject.net.DeviceId;
-import org.onosproject.net.behaviour.L3vpnConfig;
-import org.onosproject.net.behaviour.NetconfBgp;
-import org.onosproject.net.behaviour.NetconfBgpVrf;
-import org.onosproject.net.behaviour.NetconfBgpVrfAF;
-import org.onosproject.net.behaviour.NetconfBgpVrfAFs;
-import org.onosproject.net.behaviour.NetconfBgpVrfs;
-import org.onosproject.net.behaviour.NetconfBgpcomm;
-import org.onosproject.net.behaviour.NetconfImportRoute;
-import org.onosproject.net.behaviour.NetconfImportRoutes;
-import org.onosproject.net.behaviour.NetconfL3vpn;
-import org.onosproject.net.behaviour.NetconfL3vpnComm;
-import org.onosproject.net.behaviour.NetconfL3vpnIf;
-import org.onosproject.net.behaviour.NetconfL3vpnIfs;
-import org.onosproject.net.behaviour.NetconfL3vpnInstance;
-import org.onosproject.net.behaviour.NetconfL3vpnInstances;
-import org.onosproject.net.behaviour.NetconfVpnInstAF;
-import org.onosproject.net.behaviour.NetconfVpnInstAFs;
-import org.onosproject.net.behaviour.NetconfVpnTarget;
-import org.onosproject.net.behaviour.NetconfVpnTargets;
-import org.onosproject.net.driver.DriverHandler;
+import org.onosproject.ne.NetconfBgp;
+import org.onosproject.ne.NetconfBgpVrf;
+import org.onosproject.ne.NetconfBgpVrfAF;
+import org.onosproject.ne.NetconfBgpVrfAFs;
+import org.onosproject.ne.NetconfBgpVrfs;
+import org.onosproject.ne.NetconfBgpcomm;
+import org.onosproject.ne.NetconfImportRoute;
+import org.onosproject.ne.NetconfImportRoutes;
+import org.onosproject.ne.NetconfL3vpn;
+import org.onosproject.ne.NetconfL3vpnComm;
+import org.onosproject.ne.NetconfL3vpnIf;
+import org.onosproject.ne.NetconfL3vpnIfs;
+import org.onosproject.ne.NetconfL3vpnInstance;
+import org.onosproject.ne.NetconfL3vpnInstances;
+import org.onosproject.ne.NetconfVpnInstAF;
+import org.onosproject.ne.NetconfVpnInstAFs;
+import org.onosproject.ne.NetconfVpnTarget;
+import org.onosproject.ne.NetconfVpnTargets;
+import org.onosproject.net.config.NetworkConfigService;
+import org.onosproject.net.device.L3vpnBgpConfig;
+import org.onosproject.net.device.L3vpnVrfConfig;
 import org.onosproject.net.driver.DriverService;
 import org.onosproject.store.serializers.KryoNamespaces;
 import org.onosproject.store.service.EventuallyConsistentMap;
@@ -94,6 +95,8 @@ import org.onosproject.yang.gen.v1.ne.l3vpn.comm.rev20141225.nel3vpncomm.l3vpnif
 import org.onosproject.yang.gen.v1.ne.l3vpn.comm.rev20141225.nel3vpncomm.l3vpnifs.l3vpnifs.L3VpnIfBuilder.L3VpnIfImpl;
 import org.slf4j.Logger;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 /**
  * Provides implementation of L3vpnNeService.
  */
@@ -117,6 +120,9 @@ public class L3vpnNeManager implements L3vpnNeService {
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     protected LogicalClockService clockService;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    protected NetworkConfigService configService;
 
     private ApplicationId appId;
 
@@ -271,10 +277,13 @@ public class L3vpnNeManager implements L3vpnNeService {
         NetconfL3vpn netconfL3vpn = new NetconfL3vpn(contentVersion,
                                                      formatVersion,
                                                      netconfComm);
-        // invoke driver L3vpnConfig
-        DriverHandler handler = driverService.createHandler(deviceId);
-        L3vpnConfig l3vpnConfig = handler.behaviour(L3vpnConfig.class);
-        return l3vpnConfig.createVrf(deviceId, netconfL3vpn);
+        log.info("L3vpn vrf config for deviceid {}", deviceId);
+        L3vpnVrfConfig config = configService.addConfig(deviceId,
+                                                        L3vpnVrfConfig.class);
+        config.setNode((JsonNode) netconfL3vpn.objectNode());
+        configService.applyConfig(deviceId, L3vpnVrfConfig.class,
+                                  config.node());
+        return true;
     }
 
     /**
@@ -320,9 +329,12 @@ public class L3vpnNeManager implements L3vpnNeService {
         NetconfBgpcomm netconfBgpcomm = new NetconfBgpcomm(netconfBgpVrfs);
         NetconfBgp netconfBgp = new NetconfBgp(contentVersion, formatVersion,
                                                netconfBgpcomm);
-        // invoke driver L3vpnConfig
-        DriverHandler handler = driverService.createHandler(deviceId);
-        L3vpnConfig l3vpnConfig = handler.behaviour(L3vpnConfig.class);
-        return l3vpnConfig.createBgpImportProtocol(deviceId, netconfBgp);
+        log.info("L3vpn bgp config for deviceid {}", deviceId);
+        L3vpnBgpConfig config = configService.addConfig(deviceId,
+                                                        L3vpnBgpConfig.class);
+        config.setNode((JsonNode) netconfBgp.objectNode());
+        configService.applyConfig(deviceId, L3vpnBgpConfig.class,
+                                  config.node());
+        return true;
     }
 }

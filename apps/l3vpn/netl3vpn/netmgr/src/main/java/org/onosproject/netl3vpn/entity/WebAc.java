@@ -113,5 +113,4 @@ public final class WebAc {
                 .add("l2Access", this.l2Access.toString())
                 .add("l2Access", this.l3Access.toString()).toString();
     }
-    
 }

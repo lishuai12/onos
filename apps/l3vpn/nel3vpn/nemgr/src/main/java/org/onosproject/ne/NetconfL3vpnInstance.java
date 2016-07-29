@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onosproject.net.behaviour;
+package org.onosproject.ne;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Objects;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Represent the object for the xml element of l3vpnInstance.
@@ -110,5 +113,15 @@ public class NetconfL3vpnInstance {
         return toStringHelper(this).add("operation", operation)
                 .add("vrfName", vrfName).add("vpnInstAFs", vpnInstAFs)
                 .add("l3vpnIfs", l3vpnIfs).toString();
+    }
+
+    public ObjectNode objectNode() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode objNode = mapper.createObjectNode();
+        objNode.put("operation", operation);
+        objNode.put("vrfName", vrfName);
+        objNode.set("vpnInstAFs", vpnInstAFs.objectNode());
+        objNode.set("l3vpnIfs", l3vpnIfs.objectNode());
+        return objNode;
     }
 }

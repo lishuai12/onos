@@ -18,6 +18,8 @@ package org.onosproject.net.behaviour;
 import org.onosproject.net.DeviceId;
 import org.onosproject.net.driver.HandlerBehaviour;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 /**
  * Behaviour for handling various drivers for l3vpn configurations.
  */
@@ -27,17 +29,17 @@ public interface L3vpnConfig extends HandlerBehaviour {
      * Create virtual routing forwarding.
      *
      * @param deviceId device identifier
-     * @param netconfL3vpn NetconfL3vpn
+     * @param JsonNode NetconfL3vpn jsonNode
      * @return true or false
      */
-    boolean createVrf(DeviceId deviceId, NetconfL3vpn netconfL3vpn);
+    boolean createVrf(DeviceId deviceId, JsonNode jsonNode);
 
     /**
      * Create Bgp Import Protocol.
      *
      * @param deviceId device identifier
-     * @param netconfBgp NetconfBgp
+     * @param JsonNode NetconfBgp jsonNode
      * @return true or false
      */
-    boolean createBgpImportProtocol(DeviceId deviceId, NetconfBgp netconfBgp);
+    boolean createBgpImportProtocol(DeviceId deviceId, JsonNode jsonNode);
 }

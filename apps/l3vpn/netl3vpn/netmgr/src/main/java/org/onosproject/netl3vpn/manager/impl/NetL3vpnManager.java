@@ -127,17 +127,17 @@ public class NetL3vpnManager implements NetL3vpnService {
                 .register(KryoNamespaces.API).register(VpnInstance.class)
                 .register(WebNetL3vpnInstance.class).register(VpnAc.class);
         webNetL3vpnStore = storageService
-                .<String, WebNetL3vpnInstance> eventuallyConsistentMapBuilder()
+                .<String, WebNetL3vpnInstance>eventuallyConsistentMapBuilder()
                 .withName(NETL3INSTANCESTORE).withSerializer(serializer)
                 .withTimestampProvider((k, v) -> clockService.getTimestamp())
                 .build();
         vpnInstanceStore = storageService
-                .<String, VpnInstance> eventuallyConsistentMapBuilder()
+                .<String, VpnInstance>eventuallyConsistentMapBuilder()
                 .withName(NEL3INSTANCESTORE).withSerializer(serializer)
                 .withTimestampProvider((k, v) -> clockService.getTimestamp())
                 .build();
         vpnAcStore = storageService
-                .<String, VpnAc> eventuallyConsistentMapBuilder()
+                .<String, VpnAc>eventuallyConsistentMapBuilder()
                 .withName(NEL3ACSTORE).withSerializer(serializer)
                 .withTimestampProvider((k, v) -> clockService.getTimestamp())
                 .build();

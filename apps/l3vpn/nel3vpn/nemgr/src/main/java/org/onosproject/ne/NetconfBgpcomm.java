@@ -13,42 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onosproject.net.behaviour;
+package org.onosproject.ne;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 /**
- * Represent the object for the xml element of vpnInstAFs.
+ * Represent the object for the xml element of bgpcomm.
  */
-public class NetconfVpnInstAFs {
-    private final List<NetconfVpnInstAF> vpnInstAFs;
+public class NetconfBgpcomm {
+    private final NetconfBgpVrfs bgpVrfs;
 
     /**
-     * NetconfVpnInstAFs constructor.
+     * NetconfBgpcomm constructor.
      *
-     * @param vpnInstAFs List of NetconfVpnInstAF
+     * @param bgpVrfs NetconfBgpVrfs
      */
-    public NetconfVpnInstAFs(List<NetconfVpnInstAF> vpnInstAFs) {
-        checkNotNull(vpnInstAFs, "vpnInstAFs cannot be null");
-        this.vpnInstAFs = vpnInstAFs;
+    public NetconfBgpcomm(NetconfBgpVrfs bgpVrfs) {
+        checkNotNull(bgpVrfs, "bgpVrfs cannot be null");
+        this.bgpVrfs = bgpVrfs;
     }
 
     /**
-     * Returns vpnInstAFs.
+     * Returns bgpVrfs.
      *
-     * @return vpnInstAFs
+     * @return bgpVrfs
      */
-    public List<NetconfVpnInstAF> vpnInstAFs() {
-        return vpnInstAFs;
+    public NetconfBgpVrfs bgpVrfs() {
+        return bgpVrfs;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(vpnInstAFs);
+        return Objects.hash(bgpVrfs);
     }
 
     @Override
@@ -56,15 +58,22 @@ public class NetconfVpnInstAFs {
         if (this == obj) {
             return true;
         }
-        if (obj instanceof NetconfVpnInstAFs) {
-            final NetconfVpnInstAFs other = (NetconfVpnInstAFs) obj;
-            return Objects.equals(this.vpnInstAFs, other.vpnInstAFs);
+        if (obj instanceof NetconfBgpcomm) {
+            final NetconfBgpcomm other = (NetconfBgpcomm) obj;
+            return Objects.equals(this.bgpVrfs, other.bgpVrfs);
         }
         return false;
     }
 
     @Override
     public String toString() {
-        return toStringHelper(this).add("vpnInstAFs", vpnInstAFs).toString();
+        return toStringHelper(this).add("bgpVrfs", bgpVrfs).toString();
+    }
+
+    public ObjectNode objectNode() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode objNode = mapper.createObjectNode();
+        objNode.set("bgpVrfs", bgpVrfs.objectNode());
+        return objNode;
     }
 }
