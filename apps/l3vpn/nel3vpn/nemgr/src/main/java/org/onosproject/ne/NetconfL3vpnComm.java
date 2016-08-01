@@ -13,26 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onosproject.net.behaviour;
+package org.onosproject.ne;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 /**
- * Represent the object for the xml element of l3vpnInstances.
+ * Represent the object for the xml element of l3vpncomm.
  */
-public class NetconfL3vpnInstances {
-    private final List<NetconfL3vpnInstance> l3vpninstances;
+public class NetconfL3vpnComm {
+    private final NetconfL3vpnInstances l3vpninstances;
 
     /**
-     * NetconfL3vpninstances constructor.
+     * NetconfL3vpnComm constructor.
      *
-     * @param l3vpninstances List of NetconfL3vpnInstance
+     * @param l3vpninstances NetconfL3vpninstances
      */
-    public NetconfL3vpnInstances(List<NetconfL3vpnInstance> l3vpninstances) {
+    public NetconfL3vpnComm(NetconfL3vpnInstances l3vpninstances) {
         checkNotNull(l3vpninstances, "l3vpninstances cannot be null");
         this.l3vpninstances = l3vpninstances;
     }
@@ -42,7 +44,7 @@ public class NetconfL3vpnInstances {
      *
      * @return l3vpninstances
      */
-    public List<NetconfL3vpnInstance> l3vpninstances() {
+    public NetconfL3vpnInstances l3vpninstances() {
         return l3vpninstances;
     }
 
@@ -56,8 +58,8 @@ public class NetconfL3vpnInstances {
         if (this == obj) {
             return true;
         }
-        if (obj instanceof NetconfL3vpnInstances) {
-            final NetconfL3vpnInstances other = (NetconfL3vpnInstances) obj;
+        if (obj instanceof NetconfL3vpnComm) {
+            final NetconfL3vpnComm other = (NetconfL3vpnComm) obj;
             return Objects.equals(this.l3vpninstances, other.l3vpninstances);
         }
         return false;
@@ -67,5 +69,12 @@ public class NetconfL3vpnInstances {
     public String toString() {
         return toStringHelper(this).add("l3vpninstances", l3vpninstances)
                 .toString();
+    }
+
+    public ObjectNode objectNode() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode objNode = mapper.createObjectNode();
+        objNode.set("l3vpninstances", l3vpninstances.objectNode());
+        return objNode;
     }
 }

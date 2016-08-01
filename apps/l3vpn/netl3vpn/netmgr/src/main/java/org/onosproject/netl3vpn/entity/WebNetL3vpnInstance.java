@@ -131,8 +131,10 @@ public final class WebNetL3vpnInstance {
             return Objects.equals(this.id, webNetL3vpnInstance.id())
                     && Objects.equals(this.name, webNetL3vpnInstance.name())
                     && Objects.equals(this.mode, webNetL3vpnInstance.mode())
-                    && Objects.equals(this.neIdList, webNetL3vpnInstance.neIdList())
-                    && Objects.equals(this.acList, webNetL3vpnInstance.acList()) ;
+                    && Objects.equals(this.neIdList,
+                                      webNetL3vpnInstance.neIdList())
+                    && Objects.equals(this.acList,
+                                      webNetL3vpnInstance.acList());
         }
         return false;
     }

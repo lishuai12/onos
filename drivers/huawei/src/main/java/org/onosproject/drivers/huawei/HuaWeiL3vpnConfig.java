@@ -22,13 +22,13 @@ import org.dom4j.Document;
 import org.onosproject.drivers.huawei.util.DocumentConvertUtil;
 import org.onosproject.net.DeviceId;
 import org.onosproject.net.behaviour.L3vpnConfig;
-import org.onosproject.net.behaviour.NetconfBgp;
-import org.onosproject.net.behaviour.NetconfL3vpn;
 import org.onosproject.net.driver.AbstractHandlerBehaviour;
 import org.onosproject.netconf.NetconfController;
 import org.onosproject.netconf.NetconfException;
 import org.onosproject.netconf.NetconfSession;
 import org.slf4j.Logger;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * Configures l3vpn on HuaWei devices.
@@ -42,7 +42,7 @@ public class HuaWeiL3vpnConfig extends AbstractHandlerBehaviour
     private static final String DEFAULT_NAMESPACE = " xmlns=\"\"";
 
     @Override
-    public boolean createVrf(DeviceId deviceId, NetconfL3vpn netconfL3vpn) {
+    public boolean createVrf(DeviceId deviceId, JsonNode netconfL3vpn) {
         NetconfController controller = checkNotNull(handler()
                 .get(NetconfController.class));
         NetconfSession session = controller.getDevicesMap().get(deviceId)
@@ -52,20 +52,22 @@ public class HuaWeiL3vpnConfig extends AbstractHandlerBehaviour
                                           NetconfConfigDatastoreType.RUNNING,
                                           ERROR_OPERATION, CONFIG_XMLNS,
                                           netconfL3vpn);
-        String requestMessage = l3vpnDocument.asXML().replaceAll(DEFAULT_NAMESPACE, "");
+        String requestMessage = l3vpnDocument.asXML()
+                .replaceAll(DEFAULT_NAMESPACE, "");
         log.debug("Vrf requestMessage is :{}", requestMessage);
         boolean reply = false;
         try {
             reply = session.editConfig(requestMessage);
         } catch (NetconfException e) {
-            log.error("Failed to create virtual routing forwarding. Caused by:{}", e);
+            log.error("Failed to create virtual routing forwarding. Caused by:{}",
+                      e);
         }
         return reply;
     }
 
     @Override
     public boolean createBgpImportProtocol(DeviceId deviceId,
-                                           NetconfBgp netconfBgp) {
+                                           JsonNode netconfBgp) {
         NetconfController controller = checkNotNull(handler()
                 .get(NetconfController.class));
         NetconfSession session = controller.getDevicesMap().get(deviceId)
@@ -75,7 +77,8 @@ public class HuaWeiL3vpnConfig extends AbstractHandlerBehaviour
                                         NetconfConfigDatastoreType.RUNNING,
                                         ERROR_OPERATION, CONFIG_XMLNS,
                                         netconfBgp);
-        String requestMessage = bgpDocument.asXML().replaceAll(DEFAULT_NAMESPACE, "");
+        String requestMessage = bgpDocument.asXML()
+                .replaceAll(DEFAULT_NAMESPACE, "");
         log.debug("Bgp requestMessage is :{}", requestMessage);
         boolean reply = false;
         try {

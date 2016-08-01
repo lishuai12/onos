@@ -13,26 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onosproject.net.behaviour;
+package org.onosproject.ne;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 /**
- * Represent the object for the xml element of bgpVrfs.
+ * Represent the object for the xml element of bgpcomm.
  */
-public class NetconfBgpVrfs {
-    private final List<NetconfBgpVrf> bgpVrfs;
+public class NetconfBgpcomm {
+    private final NetconfBgpVrfs bgpVrfs;
 
     /**
-     * NetconfBgpVrfs constructor.
+     * NetconfBgpcomm constructor.
      *
-     * @param bgpVrfs List of NetconfBgpVrf
+     * @param bgpVrfs NetconfBgpVrfs
      */
-    public NetconfBgpVrfs(List<NetconfBgpVrf> bgpVrfs) {
+    public NetconfBgpcomm(NetconfBgpVrfs bgpVrfs) {
         checkNotNull(bgpVrfs, "bgpVrfs cannot be null");
         this.bgpVrfs = bgpVrfs;
     }
@@ -42,7 +44,7 @@ public class NetconfBgpVrfs {
      *
      * @return bgpVrfs
      */
-    public List<NetconfBgpVrf> bgpVrfs() {
+    public NetconfBgpVrfs bgpVrfs() {
         return bgpVrfs;
     }
 
@@ -56,8 +58,8 @@ public class NetconfBgpVrfs {
         if (this == obj) {
             return true;
         }
-        if (obj instanceof NetconfBgpVrfs) {
-            final NetconfBgpVrfs other = (NetconfBgpVrfs) obj;
+        if (obj instanceof NetconfBgpcomm) {
+            final NetconfBgpcomm other = (NetconfBgpcomm) obj;
             return Objects.equals(this.bgpVrfs, other.bgpVrfs);
         }
         return false;
@@ -65,8 +67,13 @@ public class NetconfBgpVrfs {
 
     @Override
     public String toString() {
-        return toStringHelper(this).add("bgpVrfs", bgpVrfs)
-                .toString();
+        return toStringHelper(this).add("bgpVrfs", bgpVrfs).toString();
+    }
+
+    public ObjectNode objectNode() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode objNode = mapper.createObjectNode();
+        objNode.set("bgpVrfs", bgpVrfs.objectNode());
+        return objNode;
     }
 }
-

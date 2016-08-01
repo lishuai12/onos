@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onosproject.net.behaviour;
+package org.onosproject.ne;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Objects;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Represent the object for the xml element of importRoute.
@@ -97,5 +100,14 @@ public class NetconfImportRoute {
         return toStringHelper(this).add("operation", operation)
                 .add("importProtocol", importProtocol)
                 .add("importProcessId", importProcessId).toString();
+    }
+
+    public ObjectNode objectNode() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode objNode = mapper.createObjectNode();
+        objNode.put("operation", operation);
+        objNode.put("importProtocol", importProtocol);
+        objNode.put("importProcessId", importProcessId);
+        return objNode;
     }
 }

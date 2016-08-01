@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onosproject.net.behaviour;
+package org.onosproject.ne;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.List;
 import java.util.Objects;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Represent the object for the xml element of importRoutes.
@@ -30,8 +33,7 @@ public class NetconfImportRoutes {
     /**
      * NetconfImportRoutes constructor.
      *
-     * @param importRoutes List of NetconfImportRoute
-     */
+     * @param importRoutes List of NetconfImportRoute     */
     public NetconfImportRoutes(List<NetconfImportRoute> importRoutes) {
         checkNotNull(importRoutes, "importRoutes cannot be null");
         this.importRoutes = importRoutes;
@@ -67,5 +69,16 @@ public class NetconfImportRoutes {
     public String toString() {
         return toStringHelper(this).add("importRoutes", importRoutes)
                 .toString();
+    }
+
+    public ObjectNode objectNode() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode objNode = mapper.createObjectNode();
+        for (int index = 0; index < importRoutes.size(); index++) {
+            NetconfImportRoute importRoute = importRoutes.get(index);
+            String indexString = "importRoute" + index;
+            objNode.set(indexString, importRoute.objectNode());
+        }
+        return objNode;
     }
 }

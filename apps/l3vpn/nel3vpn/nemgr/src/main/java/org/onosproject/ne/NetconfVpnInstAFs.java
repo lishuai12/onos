@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onosproject.net.behaviour;
+package org.onosproject.ne;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.List;
 import java.util.Objects;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Represent the object for the xml element of vpnInstAFs.
@@ -66,5 +67,16 @@ public class NetconfVpnInstAFs {
     @Override
     public String toString() {
         return toStringHelper(this).add("vpnInstAFs", vpnInstAFs).toString();
+    }
+
+    public ObjectNode objectNode() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode objNode = mapper.createObjectNode();
+        for (int index = 0; index < vpnInstAFs.size(); index++) {
+            NetconfVpnInstAF vpnInstAF = vpnInstAFs.get(index);
+            String indexString = "vpnInstAF" + index;
+            objNode.set(indexString, vpnInstAF.objectNode());
+        }
+        return objNode;
     }
 }
