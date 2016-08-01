@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Objects;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.Sets;
 
 /**
  * Represent the object for the xml element of vpnInstAFs.
@@ -73,9 +72,11 @@ public class NetconfVpnInstAFs {
     public ObjectNode objectNode() {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode objNode = mapper.createObjectNode();
-        Sets.newHashSet(vpnInstAFs).stream().forEach(vpnInstAF -> {
-            objNode.set("vpnInstAF", vpnInstAF.objectNode());
-        });
+        for (int index = 0; index < vpnInstAFs.size(); index++) {
+            NetconfVpnInstAF vpnInstAF = vpnInstAFs.get(index);
+            String indexString = "vpnInstAF" + index;
+            objNode.set(indexString, vpnInstAF.objectNode());
+        }
         return objNode;
     }
 }

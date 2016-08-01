@@ -278,11 +278,11 @@ public class L3vpnNeManager implements L3vpnNeService {
                                                      formatVersion,
                                                      netconfComm);
         log.info("L3vpn vrf config for deviceid {}", deviceId);
-        L3vpnVrfConfig config = configService.addConfig(deviceId,
-                                                        L3vpnVrfConfig.class);
-        config.setNode((JsonNode) netconfL3vpn.objectNode());
+        L3vpnVrfConfig netconfL3vpnConfig = configService
+                .addConfig(deviceId, L3vpnVrfConfig.class);
+        netconfL3vpnConfig.setNode((JsonNode) netconfL3vpn.objectNode());
         configService.applyConfig(deviceId, L3vpnVrfConfig.class,
-                                  config.node());
+                                  netconfL3vpnConfig.node());
         return true;
     }
 
@@ -330,11 +330,11 @@ public class L3vpnNeManager implements L3vpnNeService {
         NetconfBgp netconfBgp = new NetconfBgp(contentVersion, formatVersion,
                                                netconfBgpcomm);
         log.info("L3vpn bgp config for deviceid {}", deviceId);
-        L3vpnBgpConfig config = configService.addConfig(deviceId,
-                                                        L3vpnBgpConfig.class);
-        config.setNode((JsonNode) netconfBgp.objectNode());
+        L3vpnBgpConfig netconfBgpConfig = configService
+                .addConfig(deviceId, L3vpnBgpConfig.class);
+        netconfBgpConfig.setNode((JsonNode) netconfBgp.objectNode());
         configService.applyConfig(deviceId, L3vpnBgpConfig.class,
-                                  config.node());
+                                  netconfBgpConfig.node());
         return true;
     }
 }

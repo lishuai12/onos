@@ -23,7 +23,6 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.Sets;
 
 /**
  * Represent the object for the xml element of importRoutes.
@@ -34,8 +33,7 @@ public class NetconfImportRoutes {
     /**
      * NetconfImportRoutes constructor.
      *
-     * @param importRoutes List of NetconfImportRoute
-     */
+     * @param importRoutes List of NetconfImportRoute     */
     public NetconfImportRoutes(List<NetconfImportRoute> importRoutes) {
         checkNotNull(importRoutes, "importRoutes cannot be null");
         this.importRoutes = importRoutes;
@@ -76,9 +74,11 @@ public class NetconfImportRoutes {
     public ObjectNode objectNode() {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode objNode = mapper.createObjectNode();
-        Sets.newHashSet(importRoutes).stream().forEach(importRoute -> {
-            objNode.set("importRoute", importRoute.objectNode());
-        });
+        for (int index = 0; index < importRoutes.size(); index++) {
+            NetconfImportRoute importRoute = importRoutes.get(index);
+            String indexString = "importRoute" + index;
+            objNode.set(indexString, importRoute.objectNode());
+        }
         return objNode;
     }
 }

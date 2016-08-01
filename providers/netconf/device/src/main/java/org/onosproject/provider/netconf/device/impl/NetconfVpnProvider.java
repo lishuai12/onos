@@ -131,11 +131,10 @@ public class NetconfVpnProvider extends AbstractProvider {
                     JsonNode netconfL3vpn = l3vpnVrfConfig.node();
                     switch (event.type()) {
                     case CONFIG_ADDED:
-                        log.info("netconf L3 vpn cfg added");
-                        netconfL3vpn(deviceId, netconfL3vpn);
+                        log.info("netconf l3 vpn cfg added and do nothing");
                         break;
                     case CONFIG_UPDATED:
-                        log.info("netconf L3 vpn cfg updated");
+                        log.info("netconf l3 vpn cfg updated");
                         netconfL3vpn(deviceId, netconfL3vpn);
                         break;
                     case CONFIG_REMOVED:
@@ -151,8 +150,7 @@ public class NetconfVpnProvider extends AbstractProvider {
                     JsonNode netconfBgp = l3vpnBgpConfig.node();
                     switch (event.type()) {
                     case CONFIG_ADDED:
-                        log.info("netconf bpg cfg added");
-                        netconfBgp(deviceId, netconfBgp);
+                        log.info("netconf bpg cfg added and do nothing");
                         break;
                     case CONFIG_UPDATED:
                         log.info("netconf bpg cfg updated");

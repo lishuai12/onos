@@ -23,7 +23,6 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.Sets;
 
 /**
  * Represent the object for the xml element of bgpVrfs.
@@ -76,9 +75,11 @@ public class NetconfBgpVrfs {
     public ObjectNode objectNode() {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode objNode = mapper.createObjectNode();
-        Sets.newHashSet(bgpVrfs).stream().forEach(bgpVrf -> {
-            objNode.set("bgpVrf", bgpVrf.objectNode());
-        });
+        for (int index = 0; index < bgpVrfs.size(); index++) {
+            NetconfBgpVrf bgpVrf = bgpVrfs.get(index);
+            String  indexString = "bgpVrf" + index;
+            objNode.set(indexString, bgpVrf.objectNode());
+        }
         return objNode;
     }
 }

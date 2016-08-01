@@ -23,7 +23,6 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.Sets;
 
 /**
  * Represent the object for the xml element of l3vpnInstances.
@@ -76,9 +75,11 @@ public class NetconfL3vpnInstances {
     public ObjectNode objectNode() {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode objNode = mapper.createObjectNode();
-        Sets.newHashSet(l3vpninstances).stream().forEach(l3vpninstance -> {
-            objNode.set("l3vpninstance", l3vpninstance.objectNode());
-        });
+        for (int index = 0; index < l3vpninstances.size(); index++) {
+            NetconfL3vpnInstance l3vpninstance = l3vpninstances.get(index);
+            String indexString = "l3vpninstance" + index;
+            objNode.set(indexString, l3vpninstance.objectNode());
+        }
         return objNode;
     }
 }

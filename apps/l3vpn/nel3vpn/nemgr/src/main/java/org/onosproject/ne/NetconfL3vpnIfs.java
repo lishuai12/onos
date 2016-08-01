@@ -23,7 +23,6 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.Sets;
 
 /**
  * Represent the object for the xml element of l3vpnIfs.
@@ -75,9 +74,11 @@ public class NetconfL3vpnIfs {
     public ObjectNode objectNode() {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode objNode = mapper.createObjectNode();
-        Sets.newHashSet(l3vpnIfs).stream().forEach(l3vpnIf -> {
-            objNode.set("l3vpnIf", l3vpnIf.objectNode());
-        });
+        for (int index = 0; index < l3vpnIfs.size(); index++) {
+            NetconfL3vpnIf l3vpnIf = l3vpnIfs.get(index);
+            String indexString = "vpnInstAF" + index;
+            objNode.set(indexString, l3vpnIf.objectNode());
+        }
         return objNode;
     }
 }
