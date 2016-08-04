@@ -22,14 +22,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.onosproject.ne.RouteDistinguisher;
+import org.onosproject.ne.RouteTargets;
 import org.onosproject.net.DeviceId;
 
 /**
  * Resource allocate class.
  */
 public final class NetL3VpnAllocateRes {
-    private final List<String> routeTargets;
-    private final Map<DeviceId, String> routeDistinguisherMap;
+    private final List<RouteTargets> routeTargets;
+    private final Map<DeviceId, RouteDistinguisher> routeDistinguisherMap;
     private final String vrfName;
 
     /**
@@ -39,8 +41,8 @@ public final class NetL3VpnAllocateRes {
      * @param routeDistinguisher
      * @param vrfName
      */
-    public NetL3VpnAllocateRes(List<String> routeTargets,
-                               Map<DeviceId, String> routeDistinguisherMap,
+    public NetL3VpnAllocateRes(List<RouteTargets> routeTargets,
+                               Map<DeviceId, RouteDistinguisher> routeDistinguisherMap,
                                String vrfName) {
         checkNotNull(routeTargets, "routeTargets is not null");
         checkNotNull(routeDistinguisherMap,
@@ -56,7 +58,7 @@ public final class NetL3VpnAllocateRes {
      *
      * @return list of route target
      */
-    public List<String> routeTargets() {
+    public List<RouteTargets> routeTargets() {
         return routeTargets;
     }
 
@@ -65,7 +67,7 @@ public final class NetL3VpnAllocateRes {
      *
      * @return map of route distinguisher
      */
-    public Map<DeviceId, String> routeDistinguisherMap() {
+    public Map<DeviceId, RouteDistinguisher> routeDistinguisherMap() {
         return routeDistinguisherMap;
     }
 

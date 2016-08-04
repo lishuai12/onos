@@ -18,7 +18,7 @@ public class VrfEntityCodec extends JsonCodec<VrfEntity> {
         ObjectNode result = context.mapper().createObjectNode()
                 .put("netVpnId", vrfEntity.netVpnId() == null ? null
                     : vrfEntity.netVpnId().toString())
-                .put("routeDistinguisher", vrfEntity.routeDistinguisher())
+                .put("routeDistinguisher", vrfEntity.routeDistinguisher().toString())
                 .put("importTargets", vrfEntity.importTargets().toString())
                 .put("exportTargets", vrfEntity.exportTargets().toString())
                 .put("acIdList", vrfEntity.acIdList().toString());

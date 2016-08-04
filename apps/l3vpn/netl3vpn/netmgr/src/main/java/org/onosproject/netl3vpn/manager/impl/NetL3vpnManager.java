@@ -45,6 +45,8 @@ import org.onosproject.ne.BgpImportProtocol;
 import org.onosproject.ne.BgpImportProtocol.ProtocolType;
 import org.onosproject.ne.InstanceId;
 import org.onosproject.ne.NeData;
+import org.onosproject.ne.RouteDistinguisher;
+import org.onosproject.ne.RouteTargets;
 import org.onosproject.ne.VpnAc;
 import org.onosproject.ne.VpnInstance;
 import org.onosproject.ne.VrfEntity;
@@ -254,10 +256,10 @@ public class NetL3vpnManager implements NetL3vpnService {
         for (DeviceId neId : webNetL3vpnInstance.neIdList()) {
             String vrfName = l3VpnAllocateRes.vrfName();
             InstanceId netVpnId = webNetL3vpnInstance.id();
-            String routeDistinguisher = l3VpnAllocateRes
+            RouteDistinguisher routeDistinguisher = l3VpnAllocateRes
                     .routeDistinguisherMap().get(neId);
-            List<String> importTargets = l3VpnAllocateRes.routeTargets();
-            List<String> exportTargets = l3VpnAllocateRes.routeTargets();
+            List<RouteTargets> importTargets = l3VpnAllocateRes.routeTargets();
+            List<RouteTargets> exportTargets = l3VpnAllocateRes.routeTargets();
             List<AcId> acIdList = acIdsByNeMap.get(neId);
 
             BgpImportProtocol bgpImportProtocol = new BgpImportProtocol(ProtocolType.DIRECT,
@@ -374,11 +376,11 @@ public class NetL3vpnManager implements NetL3vpnService {
      * @return the allocate resource entity
      */
     private NetL3VpnAllocateRes applyResource(WebNetL3vpnInstance webNetL3vpnInstance) {
-        String routeTarget = allocateResource(RT, webNetL3vpnInstance);
-        Map<DeviceId, String> routeDistinguisherMap = new HashMap<DeviceId, String>();
+        RouteTargets routeTarget = RouteTargets.of(allocateResource(RT, webNetL3vpnInstance));
+        Map<DeviceId, RouteDistinguisher> routeDistinguisherMap = new HashMap<DeviceId, RouteDistinguisher>();
         for (DeviceId neId : webNetL3vpnInstance.neIdList()) {
-            String routeDistinguisher = allocateResource(RD,
-                                                         webNetL3vpnInstance);
+            RouteDistinguisher routeDistinguisher = RouteDistinguisher.of(allocateResource(RD,
+                                                         webNetL3vpnInstance));
             routeDistinguisherMap.put(neId, routeDistinguisher);
         }
 
@@ -388,7 +390,7 @@ public class NetL3vpnManager implements NetL3vpnService {
             return null;
         }
 
-        List<String> routeTargets = new ArrayList<String>();
+        List<RouteTargets> routeTargets = new ArrayList<RouteTargets>();
         routeTargets.add(routeTarget);
         return new NetL3VpnAllocateRes(routeTargets, routeDistinguisherMap,
                                        vrfName);

@@ -26,6 +26,8 @@ import org.onosproject.ne.Bgp;
 import org.onosproject.ne.BgpImportProtocol;
 import org.onosproject.ne.BgpImportProtocol.ProtocolType;
 import org.onosproject.ne.NeData;
+import org.onosproject.ne.RouteDistinguisher;
+import org.onosproject.ne.RouteTargets;
 import org.onosproject.ne.VpnAc;
 import org.onosproject.ne.VpnInstance;
 import org.onosproject.ne.VrfEntity;
@@ -73,14 +75,14 @@ public final class NeDataCodec extends JsonCodec<NeData> {
             List<VrfEntity> vrfList = new ArrayList<VrfEntity>();
             for (JsonNode vrf : vrfs) {
                 String name = vrf.get("name").asText();
-                String rd = vrf.get("rd").asText();
-                List<String> its = new ArrayList<String>();
+                RouteDistinguisher rd = RouteDistinguisher.of(vrf.get("rd").asText());
+                List<RouteTargets> its = new ArrayList<RouteTargets>();
                 for (JsonNode it : vrf.get("its")) {
-                    its.add(it.asText());
+                    its.add(RouteTargets.of(it.asText()));
                 }
-                List<String> ets = new ArrayList<String>();
+                List<RouteTargets> ets = new ArrayList<RouteTargets>();
                 for (JsonNode et : vrf.get("ets")) {
-                    ets.add(et.asText());
+                    ets.add(RouteTargets.of(et.asText()));
                 }
                 List<AcId> acids = new ArrayList<AcId>();
                 for (JsonNode acid : vrf.get("acids")) {

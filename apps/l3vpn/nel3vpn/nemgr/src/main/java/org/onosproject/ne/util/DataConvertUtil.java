@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.onosproject.ne.Bgp;
 import org.onosproject.ne.BgpImportProtocol;
+import org.onosproject.ne.RouteTargets;
 import org.onosproject.ne.VpnAc;
 import org.onosproject.ne.VpnInstance;
 import org.onosproject.ne.VrfEntity;
@@ -117,26 +118,26 @@ public final class DataConvertUtil {
         vpnInstAfBuilder.afType(L3VpncommonL3VpnPrefixType
                 .of(L3VpncommonL3VpnPrefixTypeEnum.IPV4UNI));
         // Vrf Route Distinguisher
-        vpnInstAfBuilder.vrfRd(vrfEntity.routeDistinguisher());
+        vpnInstAfBuilder.vrfRd(vrfEntity.routeDistinguisher().toString());
         // Vpn Targets
         List<VpnTarget> vpnTargetList = new ArrayList<VpnTarget>();
-        List<String> erts = vrfEntity.exportTargets();
+        List<RouteTargets> erts = vrfEntity.exportTargets();
         if (erts != null && !erts.isEmpty()) {
-            for (String ert : erts) {
+            for (RouteTargets ert : erts) {
                 VpnTargetBuilder vpnErtTargetBuilder = new VpnTargetBuilder();
                 vpnErtTargetBuilder.vrfRttype(L3VpncommonVrfRtType
                         .of(L3VpncommonVrfRtTypeEnum.EXPORT_EXTCOMMUNITY));
-                vpnErtTargetBuilder.vrfRtvalue(ert);
+                vpnErtTargetBuilder.vrfRtvalue(ert.toString());
                 vpnTargetList.add(vpnErtTargetBuilder.build());
             }
         }
-        List<String> irts = vrfEntity.importTargets();
+        List<RouteTargets> irts = vrfEntity.importTargets();
         if (irts != null && !irts.isEmpty()) {
-            for (String irt : irts) {
+            for (RouteTargets irt : irts) {
                 VpnTargetBuilder vpnIrtTargetBuilder = new VpnTargetBuilder();
                 vpnIrtTargetBuilder.vrfRttype(L3VpncommonVrfRtType
                         .of(L3VpncommonVrfRtTypeEnum.IMPORT_EXTCOMMUNITY));
-                vpnIrtTargetBuilder.vrfRtvalue(irt);
+                vpnIrtTargetBuilder.vrfRtvalue(irt.toString());
                 vpnTargetList.add(vpnIrtTargetBuilder.build());
             }
         }
