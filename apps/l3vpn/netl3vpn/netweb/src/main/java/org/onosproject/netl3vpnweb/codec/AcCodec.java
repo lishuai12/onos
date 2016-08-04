@@ -15,8 +15,19 @@ public class AcCodec extends JsonCodec<Ac> {
     @Override
     public ObjectNode encode(Ac ac, CodecContext context) {
         checkNotNull(ac, "ac cannot be null");
+
+        ObjectNode l2Access = context.mapper().createObjectNode()
+                .put("accessType", ac.l2Access().accessType())
+                .put("port", ac.l2Access().port().ltpId());
+
+        ObjectNode l3Access = context.mapper().createObjectNode()
+                .put("address", ac.l3Access().address().string());
+
         ObjectNode result = context.mapper().createObjectNode()
-                .put("acId", ac.id());
+                .put("acId", ac.id()).put("neId", ac.neId());
+        result.set("l2access", l2Access);
+        result.set("l3access", l3Access);
+
         return result;
     }
 }
