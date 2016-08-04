@@ -16,7 +16,6 @@
 package org.onosproject.netl3vpn.manager.impl;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -24,13 +23,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
+import org.onlab.packet.IpAddress;
 import org.onlab.util.KryoNamespace;
 import org.onosproject.core.ApplicationId;
 import org.onosproject.core.CoreService;
@@ -40,14 +39,16 @@ import org.onosproject.incubator.net.resource.label.LabelResourceAdminService;
 import org.onosproject.incubator.net.resource.label.LabelResourceId;
 import org.onosproject.incubator.net.resource.label.LabelResourceService;
 import org.onosproject.mastership.MastershipService;
+import org.onosproject.ne.AcId;
 import org.onosproject.ne.Bgp;
 import org.onosproject.ne.BgpImportProtocol;
 import org.onosproject.ne.BgpImportProtocol.ProtocolType;
+import org.onosproject.ne.InstanceId;
 import org.onosproject.ne.NeData;
 import org.onosproject.ne.VpnAc;
 import org.onosproject.ne.VpnInstance;
 import org.onosproject.ne.VrfEntity;
-import org.onosproject.ne.manager.L3vpnNeService;
+import org.onosproject.ne.manager.NeL3vpnService;
 import org.onosproject.net.AnnotationKeys;
 import org.onosproject.net.DeviceId;
 import org.onosproject.net.Port;
@@ -83,6 +84,7 @@ public class NetL3vpnManager implements NetL3vpnService {
     private static final String NETL3INSTANCESTORE = "netl3vpn-instance";
     private static final String NEL3INSTANCESTORE = "nel3vpn-instance";
     private static final String NEL3ACSTORE = "nel3vpn-ac";
+    private static final String INSTANCESTORE = "instance";
     private static final long GLOBAL_LABEL_SPACE_MIN = 1;
     private static final long GLOBAL_LABEL_SPACE_MAX = Long.MAX_VALUE;
     private static final String RD_PREFIX = "100:";
@@ -113,12 +115,13 @@ public class NetL3vpnManager implements NetL3vpnService {
     protected LabelResourceService labelRsrcService;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
-    private L3vpnNeService l3vpnNeService;
+    private NeL3vpnService l3vpnNeService;
 
     private ApplicationId appId;
-    private EventuallyConsistentMap<String, WebNetL3vpnInstance> webNetL3vpnStore;
-    private EventuallyConsistentMap<String, VpnInstance> vpnInstanceStore;
-    private EventuallyConsistentMap<String, VpnAc> vpnAcStore;
+    private EventuallyConsistentMap<InstanceId, WebNetL3vpnInstance> webNetL3vpnStore;
+    private EventuallyConsistentMap<DeviceId, VpnInstance> vpnInstanceStore;
+    private EventuallyConsistentMap<AcId, VpnAc> vpnAcStore;
+    private EventuallyConsistentMap<InstanceId, Instance> instanceStore;
 
     @Activate
     public void activate() {
@@ -127,18 +130,23 @@ public class NetL3vpnManager implements NetL3vpnService {
                 .register(KryoNamespaces.API).register(VpnInstance.class)
                 .register(WebNetL3vpnInstance.class).register(VpnAc.class);
         webNetL3vpnStore = storageService
-                .<String, WebNetL3vpnInstance>eventuallyConsistentMapBuilder()
+                .<InstanceId, WebNetL3vpnInstance>eventuallyConsistentMapBuilder()
                 .withName(NETL3INSTANCESTORE).withSerializer(serializer)
                 .withTimestampProvider((k, v) -> clockService.getTimestamp())
                 .build();
         vpnInstanceStore = storageService
-                .<String, VpnInstance>eventuallyConsistentMapBuilder()
+                .<DeviceId, VpnInstance>eventuallyConsistentMapBuilder()
                 .withName(NEL3INSTANCESTORE).withSerializer(serializer)
                 .withTimestampProvider((k, v) -> clockService.getTimestamp())
                 .build();
         vpnAcStore = storageService
-                .<String, VpnAc>eventuallyConsistentMapBuilder()
+                .<AcId, VpnAc>eventuallyConsistentMapBuilder()
                 .withName(NEL3ACSTORE).withSerializer(serializer)
+                .withTimestampProvider((k, v) -> clockService.getTimestamp())
+                .build();
+        instanceStore = storageService
+                .<InstanceId, Instance>eventuallyConsistentMapBuilder()
+                .withName(INSTANCESTORE).withSerializer(serializer)
                 .withTimestampProvider((k, v) -> clockService.getTimestamp())
                 .build();
 
@@ -152,6 +160,10 @@ public class NetL3vpnManager implements NetL3vpnService {
 
     @Deactivate
     public void deactivate() {
+        webNetL3vpnStore.clear();
+        vpnInstanceStore.clear();
+        vpnAcStore.clear();
+        instanceStore.clear();
         log.info("Stopped");
     }
 
@@ -187,6 +199,7 @@ public class NetL3vpnManager implements NetL3vpnService {
             for (VpnAc vpnAc : neData.vpnAcList()) {
                 vpnAcStore.put(vpnAc.acId(), vpnAc);
             }
+            instanceStore.put(InstanceId.of(instance.id()), instance);
             return true;
         }
         return false;
@@ -203,13 +216,13 @@ public class NetL3vpnManager implements NetL3vpnService {
         List<VpnInstance> vpnInstanceList = new ArrayList<VpnInstance>();
         List<VpnAc> vpnAcList = new ArrayList<VpnAc>();
 
-        Map<String, List<String>> acIdsByNeMap = new HashMap<String, List<String>>();
-        Map<String, List<WebAc>> acsByNeMap = new HashMap<String, List<WebAc>>();
+        Map<DeviceId, List<AcId>> acIdsByNeMap = new HashMap<DeviceId, List<AcId>>();
+        Map<DeviceId, List<WebAc>> acsByNeMap = new HashMap<DeviceId, List<WebAc>>();
         for (WebAc webAc : webNetL3vpnInstance.acList()) {
-            String neId = webAc.neId();
-            List<String> acIdsByNeList = acIdsByNeMap.get(neId);
+            DeviceId neId = webAc.neId();
+            List<AcId> acIdsByNeList = acIdsByNeMap.get(neId);
             if (acIdsByNeList == null) {
-                acIdsByNeList = new ArrayList<String>();
+                acIdsByNeList = new ArrayList<AcId>();
             }
             acIdsByNeList.add(webAc.id());
             acIdsByNeMap.put(neId, acIdsByNeList);
@@ -234,18 +247,18 @@ public class NetL3vpnManager implements NetL3vpnService {
      * @param webNetL3vpnInstance the l3vpn network instance
      * @return list of vpn instance
      */
-    private List<VpnInstance> decompVpnInstance(Map<String, List<String>> acIdsByNeMap,
+    private List<VpnInstance> decompVpnInstance(Map<DeviceId, List<AcId>>  acIdsByNeMap,
                                                 WebNetL3vpnInstance webNetL3vpnInstance,
                                                 NetL3VpnAllocateRes l3VpnAllocateRes) {
         List<VpnInstance> vpnInstanceList = new ArrayList<VpnInstance>();
-        for (String neId : webNetL3vpnInstance.neIdList()) {
+        for (DeviceId neId : webNetL3vpnInstance.neIdList()) {
             String vrfName = l3VpnAllocateRes.vrfName();
-            String netVpnId = webNetL3vpnInstance.id();
+            InstanceId netVpnId = webNetL3vpnInstance.id();
             String routeDistinguisher = l3VpnAllocateRes
                     .routeDistinguisherMap().get(neId);
             List<String> importTargets = l3VpnAllocateRes.routeTargets();
             List<String> exportTargets = l3VpnAllocateRes.routeTargets();
-            List<String> acIdList = acIdsByNeMap.get(neId);
+            List<AcId> acIdList = acIdsByNeMap.get(neId);
 
             BgpImportProtocol bgpImportProtocol = new BgpImportProtocol(ProtocolType.DIRECT,
                                                                         "0");
@@ -272,21 +285,21 @@ public class NetL3vpnManager implements NetL3vpnService {
      * @param webNetL3vpnInstance the l3vpn network instance
      * @return list of vpn ac
      */
-    private List<VpnAc> decompVpnAc(Map<String, List<WebAc>> acsByNeMap,
+    private List<VpnAc> decompVpnAc(Map<DeviceId, List<WebAc>> acsByNeMap,
                                     WebNetL3vpnInstance webNetL3vpnInstance) {
         List<VpnAc> vpnAcList = new ArrayList<VpnAc>();
-        String netVpnId = webNetL3vpnInstance.id();
-        for (String neId : webNetL3vpnInstance.neIdList()) {
+        InstanceId netVpnId = webNetL3vpnInstance.id();
+        for (DeviceId neId : webNetL3vpnInstance.neIdList()) {
             List<WebAc> webAcList = acsByNeMap.get(neId);
             for (WebAc webAc : webAcList) {
-                String acId = webAc.id();
+                AcId acId = webAc.id();
                 Port port = deviceService
-                        .getPort(DeviceId.deviceId(neId),
+                        .getPort(neId,
                                  PortNumber.portNumber(webAc.l2Access()
                                          .port().ltpId()));
                 String acName = port.annotations()
                         .value(AnnotationKeys.PORT_NAME);
-                String ipAddress = webAc.l3Access().address();
+                IpAddress ipAddress = IpAddress.valueOf(webAc.l3Access().address().split("/")[0]);
                 int subNetMask = Integer.parseInt(webAc.l3Access()
                         .address().split("/")[1]);
                 VpnAc vpnAc = new VpnAc(netVpnId, acId, acName, ipAddress,
@@ -298,16 +311,16 @@ public class NetL3vpnManager implements NetL3vpnService {
     }
 
     private WebNetL3vpnInstance cfgParse(Instance instance) {
-        List<String> neIdList = new ArrayList<String>();
+        List<DeviceId> neIdList = new ArrayList<DeviceId>();
         for (Ne ne : instance.nes().ne()) {
-            neIdList.add(ne.id());
+            neIdList.add(DeviceId.deviceId(ne.id()));
         }
         List<WebAc> webAcs = new ArrayList<WebAc>();
         for (Ac ac : instance.acs().ac()) {
             webAcs.add(ConvertUtil.convertToWebAc(ac));
         }
-        WebNetL3vpnInstance webNetL3vpnInstance = new WebNetL3vpnInstance(instance
-                .id(), instance.name(), TopoModeType
+        WebNetL3vpnInstance webNetL3vpnInstance = new WebNetL3vpnInstance(InstanceId
+                .of(instance.id()), instance.name(), TopoModeType
                         .valueOf("FullMesh"), neIdList, webAcs);
         return webNetL3vpnInstance;
     }
@@ -345,7 +358,7 @@ public class NetL3vpnManager implements NetL3vpnService {
      * @return valid or not
      */
     private boolean checkOccupiedResource(WebNetL3vpnInstance webNetL3vpnInstance) {
-        for (Entry<String, WebNetL3vpnInstance> entry : webNetL3vpnStore
+        for (Entry<InstanceId, WebNetL3vpnInstance> entry : webNetL3vpnStore
                 .entrySet()) {
             if ((entry.getKey() == webNetL3vpnInstance.id()) || (entry
                     .getValue().name() == webNetL3vpnInstance.name())) {
@@ -362,8 +375,8 @@ public class NetL3vpnManager implements NetL3vpnService {
      */
     private NetL3VpnAllocateRes applyResource(WebNetL3vpnInstance webNetL3vpnInstance) {
         String routeTarget = allocateResource(RT, webNetL3vpnInstance);
-        Map<String, String> routeDistinguisherMap = new HashMap<String, String>();
-        for (String neId : webNetL3vpnInstance.neIdList()) {
+        Map<DeviceId, String> routeDistinguisherMap = new HashMap<DeviceId, String>();
+        for (DeviceId neId : webNetL3vpnInstance.neIdList()) {
             String routeDistinguisher = allocateResource(RD,
                                                          webNetL3vpnInstance);
             routeDistinguisherMap.put(neId, routeDistinguisher);
@@ -416,4 +429,15 @@ public class NetL3vpnManager implements NetL3vpnService {
             return null;
         }
     }
+
+    @Override
+    public Collection<Instance> getInstances() {
+        return instanceStore.values();
+    }
+
+    @Override
+    public Instance getInstance(InstanceId instanceId) {
+        return instanceStore.get(instanceId);
+    }
+
 }

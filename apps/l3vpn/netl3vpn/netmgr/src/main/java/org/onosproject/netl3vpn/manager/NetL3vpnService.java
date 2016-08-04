@@ -15,6 +15,9 @@
  */
 package org.onosproject.netl3vpn.manager;
 
+import java.util.Collection;
+
+import org.onosproject.ne.InstanceId;
 import org.onosproject.yang.gen.v1.net.l3vpn.rev20160701.netl3vpn.instances.Instance;
 
 /**
@@ -28,4 +31,18 @@ public interface NetL3vpnService {
      * @return true if all given identifiers created successfully.
      */
     boolean createL3vpn(Instance instance);
+
+    /**
+     * Return all instances.
+     *
+     * @return collection of Instances.
+     */
+    Collection<Instance> getInstances();
+
+    /**
+     * Return instance with the specified identifier .
+     *
+     * @return collection of Instance.
+     */
+    public Instance getInstance(InstanceId instanceId);
 }

@@ -19,15 +19,16 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Objects;
+import org.onlab.packet.IpAddress;
 
 /**
  * VpnAc is vpn access.
  */
 public final class VpnAc {
-    private final String netVpnId;
-    private final String acId;
+    private final InstanceId netVpnId;
+    private final AcId acId;
     private final String acName;
-    private final String ipAddress;
+    private final IpAddress ipAddress;
     private final Integer subNetMask;
 
     /**
@@ -39,7 +40,7 @@ public final class VpnAc {
      * @param ipAddress ip address
      * @param subNetMask mask
      */
-    public VpnAc(String netVpnId, String acId, String acName, String ipAddress,
+    public VpnAc(InstanceId netVpnId, AcId acId, String acName, IpAddress ipAddress,
                  Integer subNetMask) {
         checkNotNull(netVpnId, "netVpnId cannot be null");
         checkNotNull(acId, "acId cannot be null");
@@ -61,7 +62,7 @@ public final class VpnAc {
      * @param ipAddress ip address
      * @param subNetMask mask
      */
-    public VpnAc(String acId, String acName, String ipAddress,
+    public VpnAc(AcId acId, String acName, IpAddress ipAddress,
                  Integer subNetMask) {
         checkNotNull(acId, "acId cannot be null");
         checkNotNull(acName, "acName cannot be null");
@@ -79,7 +80,7 @@ public final class VpnAc {
      *
      * @return netVpnId
      */
-    public String netVpnId() {
+    public InstanceId netVpnId() {
         return netVpnId;
     }
 
@@ -88,7 +89,7 @@ public final class VpnAc {
      *
      * @return acId
      */
-    public String acId() {
+    public AcId acId() {
         return acId;
     }
 
@@ -106,7 +107,7 @@ public final class VpnAc {
      *
      * @return ipAddress
      */
-    public String ipAddress() {
+    public IpAddress ipAddress() {
         return ipAddress;
     }
 

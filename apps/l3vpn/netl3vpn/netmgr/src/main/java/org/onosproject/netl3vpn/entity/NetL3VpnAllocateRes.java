@@ -22,12 +22,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.onosproject.net.DeviceId;
+
 /**
  * Resource allocate class.
  */
 public final class NetL3VpnAllocateRes {
     private final List<String> routeTargets;
-    private final Map<String, String> routeDistinguisherMap;
+    private final Map<DeviceId, String> routeDistinguisherMap;
     private final String vrfName;
 
     /**
@@ -38,7 +40,7 @@ public final class NetL3VpnAllocateRes {
      * @param vrfName
      */
     public NetL3VpnAllocateRes(List<String> routeTargets,
-                               Map<String, String> routeDistinguisherMap,
+                               Map<DeviceId, String> routeDistinguisherMap,
                                String vrfName) {
         checkNotNull(routeTargets, "routeTargets is not null");
         checkNotNull(routeDistinguisherMap,
@@ -63,7 +65,7 @@ public final class NetL3VpnAllocateRes {
      *
      * @return map of route distinguisher
      */
-    public Map<String, String> routeDistinguisherMap() {
+    public Map<DeviceId, String> routeDistinguisherMap() {
         return routeDistinguisherMap;
     }
 

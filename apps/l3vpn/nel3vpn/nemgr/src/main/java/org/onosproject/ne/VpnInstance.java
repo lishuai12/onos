@@ -21,11 +21,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.List;
 import java.util.Objects;
 
+import org.onosproject.net.DeviceId;
+
 /**
  * VpnInstance vpn instance.
  */
 public class VpnInstance {
-    private final String neId;
+    private final DeviceId neId;
     private final List<VrfEntity> vrfList;
 
     /**
@@ -38,7 +40,7 @@ public class VpnInstance {
      * @param exportTargets list of exportTarget
      * @param bgp bgp
      */
-    public VpnInstance(String neId, List<VrfEntity> vrfList) {
+    public VpnInstance(DeviceId neId, List<VrfEntity> vrfList) {
         checkNotNull(neId, "neId cannot be null");
         checkNotNull(vrfList, "vrfList cannot be null");
         this.neId = neId;
@@ -50,7 +52,7 @@ public class VpnInstance {
      *
      * @return neId
      */
-    public String neId() {
+    public DeviceId neId() {
         return neId;
     }
 

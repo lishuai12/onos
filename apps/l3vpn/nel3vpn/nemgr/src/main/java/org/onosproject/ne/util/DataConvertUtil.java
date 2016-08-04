@@ -159,8 +159,7 @@ public final class DataConvertUtil {
         for (VpnAc vpnAc : vpnAcs) {
             L3VpnIfBuilder l3VpnIfBuilder = new L3VpnIfBuilder();
             l3VpnIfBuilder.ifName(vpnAc.acName());
-            Ipv4Address ipv4Address = new Ipv4Address(vpnAc.ipAddress()
-                    .split("/")[0]);
+            Ipv4Address ipv4Address = new Ipv4Address(vpnAc.ipAddress().toString());
             l3VpnIfBuilder.ipv4Addr(ipv4Address);
             Ipv4Address subnetMask = new Ipv4Address(IpUtil
                     .getMask(String.valueOf(vpnAc.subNetMask())));

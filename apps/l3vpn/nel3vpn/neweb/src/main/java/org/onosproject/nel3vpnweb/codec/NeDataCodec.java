@@ -16,12 +16,12 @@
 package org.onosproject.nel3vpnweb.codec;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.ArrayList;
 import java.util.List;
-
+import org.onlab.packet.IpAddress;
 import org.onosproject.codec.CodecContext;
 import org.onosproject.codec.JsonCodec;
+import org.onosproject.ne.AcId;
 import org.onosproject.ne.Bgp;
 import org.onosproject.ne.BgpImportProtocol;
 import org.onosproject.ne.BgpImportProtocol.ProtocolType;
@@ -29,7 +29,7 @@ import org.onosproject.ne.NeData;
 import org.onosproject.ne.VpnAc;
 import org.onosproject.ne.VpnInstance;
 import org.onosproject.ne.VrfEntity;
-
+import org.onosproject.net.DeviceId;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -47,9 +47,15 @@ public final class NeDataCodec extends JsonCodec<NeData> {
     private static final String OSPF = "ospf";
 
     @Override
-    public ObjectNode encode(NeData vPort, CodecContext context) {
-        // TODO
-        return null;
+    public ObjectNode encode(NeData nedata, CodecContext context) {
+        checkNotNull(nedata, "nedata cannot be null");
+        Iterable<VpnInstance> vpnInstances = nedata.vpnInstanceList();
+        Iterable<VpnAc> vpnAcs = nedata.vpnAcList();
+        ObjectNode result = context.mapper().createObjectNode();
+        result.set("instances",
+                   new VpnInstanceCodec().encode(vpnInstances, context));
+        result.set("acs", new VpnAcCodec().encode(vpnAcs, context));
+        return result;
     }
 
     @Override
@@ -62,7 +68,7 @@ public final class NeDataCodec extends JsonCodec<NeData> {
         List<VpnInstance> vpnInstanceList = new ArrayList<VpnInstance>();
         List<VpnAc> vpnAcList = new ArrayList<VpnAc>();
         for (JsonNode instance : instances) {
-            String neid = instance.get("neid").asText();
+            DeviceId neid = DeviceId.deviceId(instance.get("neid").asText());
             JsonNode vrfs = instance.get("vrfs");
             List<VrfEntity> vrfList = new ArrayList<VrfEntity>();
             for (JsonNode vrf : vrfs) {
@@ -76,9 +82,9 @@ public final class NeDataCodec extends JsonCodec<NeData> {
                 for (JsonNode et : vrf.get("ets")) {
                     ets.add(et.asText());
                 }
-                List<String> acids = new ArrayList<String>();
+                List<AcId> acids = new ArrayList<AcId>();
                 for (JsonNode acid : vrf.get("acids")) {
-                    acids.add(acid.asText());
+                    acids.add(AcId.of(acid.asText()));
                 }
                 JsonNode importroutes = vrf.get("bgp").get("importroutes");
                 List<BgpImportProtocol> importProtocols = new ArrayList<BgpImportProtocol>();
@@ -117,9 +123,9 @@ public final class NeDataCodec extends JsonCodec<NeData> {
             vpnInstanceList.add(new VpnInstance(neid, vrfList));
         }
         for (JsonNode ac : acs) {
-            String id = ac.get("id").asText();
+            AcId id = AcId.of(ac.get("id").asText());
             String name = ac.get("name").asText();
-            String ip = ac.get("ip").asText();
+            IpAddress ip = IpAddress.valueOf(ac.get("ip").asText());
             Integer mask = ac.get("mask").asInt();
             vpnAcList.add(new VpnAc(id, name, ip, mask));
         }

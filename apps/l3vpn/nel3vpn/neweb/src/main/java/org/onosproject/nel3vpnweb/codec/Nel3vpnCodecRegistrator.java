@@ -21,7 +21,12 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.onosproject.codec.CodecService;
+import org.onosproject.ne.Bgp;
+import org.onosproject.ne.BgpImportProtocol;
 import org.onosproject.ne.NeData;
+import org.onosproject.ne.VpnAc;
+import org.onosproject.ne.VpnInstance;
+import org.onosproject.ne.VrfEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +44,11 @@ public class Nel3vpnCodecRegistrator {
     @Activate
     public void activate() {
         codecService.registerCodec(NeData.class, new NeDataCodec());
-
+        codecService.registerCodec(VpnInstance.class, new VpnInstanceCodec());
+        codecService.registerCodec(VrfEntity.class, new VrfEntityCodec());
+        codecService.registerCodec(VpnAc.class, new VpnAcCodec());
+        codecService.registerCodec(Bgp.class, new BgpCodec());
+        codecService.registerCodec(BgpImportProtocol.class, new BgpImportProtocolCodec());
         log.info("Started");
     }
 

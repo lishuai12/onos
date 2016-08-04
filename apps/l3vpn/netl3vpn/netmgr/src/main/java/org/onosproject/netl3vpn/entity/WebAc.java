@@ -20,12 +20,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Objects;
 
+import org.onosproject.ne.AcId;
+import org.onosproject.net.DeviceId;
+
 /**
  * Immutable representation of a web ac.
  */
 public final class WebAc {
-    private final String id;
-    private final String neId;
+    private final AcId id;
+    private final DeviceId neId;
     private final WebL2Access l2Access;
     private final WebL3Access l3Access;
 
@@ -37,7 +40,7 @@ public final class WebAc {
      * @param l2Access l2 access
      * @param l3Access l3 access
      */
-    public WebAc(String id, String neId, WebL2Access l2Access,
+    public WebAc(AcId id, DeviceId neId, WebL2Access l2Access,
                  WebL3Access l3Access) {
         checkNotNull(id, "id cannot be null");
         checkNotNull(neId, "neId cannot be null");
@@ -54,7 +57,7 @@ public final class WebAc {
      *
      * @return ac id
      */
-    public String id() {
+    public AcId id() {
         return id;
     }
 
@@ -63,7 +66,7 @@ public final class WebAc {
      *
      * @return ne id
      */
-    public String neId() {
+    public DeviceId neId() {
         return neId;
     }
 
