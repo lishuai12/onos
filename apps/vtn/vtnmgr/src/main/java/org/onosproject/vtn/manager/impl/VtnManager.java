@@ -617,6 +617,7 @@ public class VtnManager implements VtnService {
 
         Iterable<Device> devices = deviceService.getAvailableDevices();
         PortNumber inPort = host.location().port();
+        log.info("========================in port is {}", inPort.toString());
         MacAddress mac = host.mac();
         Device device = deviceService.getDevice(deviceId);
         String controllerIp = VtnData.getControllerIpOfSwitch(device);
@@ -775,6 +776,9 @@ public class VtnManager implements VtnService {
             } else if (HostEvent.Type.HOST_REMOVED == event.type()) {
                 onHostVanished(host);
             } else if (HostEvent.Type.HOST_UPDATED == event.type()) {
+                onHostVanished(host);
+                onHostDetected(host);
+            } else if (HostEvent.Type.HOST_MOVED == event.type()) {
                 onHostVanished(host);
                 onHostDetected(host);
             }

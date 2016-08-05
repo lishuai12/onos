@@ -21,14 +21,17 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.List;
 import java.util.Objects;
 
+import org.onosproject.ne.InstanceId;
+import org.onosproject.net.DeviceId;
+
 /**
  * Immutable representation of a web l3 vpn network instance.
  */
 public final class WebNetL3vpnInstance {
-    private final String id;
+    private final InstanceId id;
     private final String name;
     private final TopoModeType mode;
-    private final List<String> neIdList;
+    private final List<DeviceId> neIdList;
     private final List<WebAc> acList;
 
     /**
@@ -40,8 +43,8 @@ public final class WebNetL3vpnInstance {
      * @param neIdList list of ne id
      * @param acList list of ac
      */
-    public WebNetL3vpnInstance(String id, String name, TopoModeType mode,
-                               List<String> neIdList, List<WebAc> acList) {
+    public WebNetL3vpnInstance(InstanceId id, String name, TopoModeType mode,
+                               List<DeviceId> neIdList, List<WebAc> acList) {
         checkNotNull(id, "id cannot be null");
         checkNotNull(name, "name cannot be null");
         checkNotNull(mode, "mode cannot be null");
@@ -76,7 +79,7 @@ public final class WebNetL3vpnInstance {
      *
      * @return id
      */
-    public String id() {
+    public InstanceId id() {
         return id;
     }
 
@@ -103,7 +106,7 @@ public final class WebNetL3vpnInstance {
      *
      * @return ne id list
      */
-    public List<String> neIdList() {
+    public List<DeviceId> neIdList() {
         return neIdList;
     }
 

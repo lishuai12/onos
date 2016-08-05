@@ -19,22 +19,24 @@ import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.OK;
 
 import java.io.InputStream;
-
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import org.onlab.util.ItemNotFoundException;
 import org.onosproject.ne.NeData;
-import org.onosproject.ne.manager.L3vpnNeService;
+import org.onosproject.ne.manager.NeL3vpnService;
+import org.onosproject.nel3vpnweb.codec.NeDataCodec;
+import org.onosproject.net.DeviceId;
 import org.onosproject.rest.AbstractWebResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -47,6 +49,26 @@ public class NeL3vpnWebResource extends AbstractWebResource {
     protected static final Logger log = LoggerFactory
             .getLogger(NeL3vpnWebResource.class);
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response listNedatas() {
+        Iterable<NeData> nedatas = get(NeL3vpnService.class).getNeDatas();
+        ObjectNode result = new ObjectMapper().createObjectNode();
+        result.set("nedatas", new NeDataCodec().encode(nedatas, this));
+        return ok(result.toString()).build();
+    }
+
+    @GET
+    @Path("{neId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getNedata(@PathParam("neId") String id) {
+        NeData nedata = get(NeL3vpnService.class)
+                .getNeData(DeviceId.deviceId(id));
+        ObjectNode result = new ObjectMapper().createObjectNode();
+        result.set("nedata", new NeDataCodec().encode(nedata, this));
+        return ok(result.toString()).build();
+    }
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -54,7 +76,7 @@ public class NeL3vpnWebResource extends AbstractWebResource {
         try {
             JsonNode cfg = this.mapper().readTree(input);
             NeData nedata = codec(NeData.class).decode((ObjectNode) cfg, this);
-            Boolean issuccess = nullIsNotFound(get(L3vpnNeService.class)
+            Boolean issuccess = nullIsNotFound(get(NeL3vpnService.class)
                     .createL3vpn(nedata), NE_NOT_FOUND);
             if (!issuccess) {
                 return Response.status(INTERNAL_SERVER_ERROR)

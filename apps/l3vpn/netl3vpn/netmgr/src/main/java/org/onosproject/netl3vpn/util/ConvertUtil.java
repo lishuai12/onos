@@ -15,6 +15,8 @@
  */
 package org.onosproject.netl3vpn.util;
 
+import org.onosproject.ne.AcId;
+import org.onosproject.net.DeviceId;
 import org.onosproject.netl3vpn.entity.WebAc;
 import org.onosproject.netl3vpn.entity.WebL2Access;
 import org.onosproject.netl3vpn.entity.WebL2Access.L2AccessType;
@@ -69,7 +71,7 @@ public final class ConvertUtil {
      * @return WebAc
      */
     public static WebAc convertToWebAc(Ac ac) {
-        return new WebAc(ac.id(), ac.neId(),
+        return new WebAc(AcId.of(ac.id()), DeviceId.deviceId(ac.neId()),
                          convertToWebL2Access(ac.l2Access()),
                          convertToWebL3Access(ac.l3Access()));
     }

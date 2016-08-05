@@ -37,9 +37,15 @@ public final class InstanceCodec extends JsonCodec<Instance> {
     public static final String JSON_NOT_NULL = "JsonNode can not be null";
 
     @Override
-    public ObjectNode encode(Instance vPort, CodecContext context) {
-        // TODO
-        return null;
+    public ObjectNode encode(Instance instance, CodecContext context) {
+        checkNotNull(instance, "instance cannot be null");
+        ObjectNode result = context.mapper().createObjectNode()
+                .put("id", instance.id().toString())
+                .put("name", instance.name().toString())
+                .put("mode", instance.mode().toString());
+        result.set("nes", new NesCodec().encode(instance.nes(), context));
+        result.set("acs", new AcsCodec().encode(instance.acs(), context));
+        return result;
     }
 
     @Override

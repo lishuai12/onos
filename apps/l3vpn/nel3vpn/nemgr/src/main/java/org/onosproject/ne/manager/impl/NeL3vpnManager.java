@@ -15,14 +15,14 @@
  */
 package org.onosproject.ne.manager.impl;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.slf4j.LoggerFactory.getLogger;
-
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -33,11 +33,12 @@ import org.onlab.util.KryoNamespace;
 import org.onosproject.core.ApplicationId;
 import org.onosproject.core.CoreService;
 import org.onosproject.mastership.MastershipService;
+import org.onosproject.ne.AcId;
 import org.onosproject.ne.NeData;
 import org.onosproject.ne.VpnAc;
 import org.onosproject.ne.VpnInstance;
 import org.onosproject.ne.VrfEntity;
-import org.onosproject.ne.manager.L3vpnNeService;
+import org.onosproject.ne.manager.NeL3vpnService;
 import org.onosproject.ne.util.DataConvertUtil;
 import org.onosproject.net.DeviceId;
 import org.onosproject.ne.NetconfBgp;
@@ -102,7 +103,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  */
 @Component(immediate = true)
 @Service
-public class L3vpnNeManager implements L3vpnNeService {
+public class NeL3vpnManager implements NeL3vpnService {
     private final Logger log = getLogger(getClass());
     private static final String APP_ID = "org.onosproject.app.l3vpn.ne";
 
@@ -134,11 +135,15 @@ public class L3vpnNeManager implements L3vpnNeService {
     private static final String EDIT_OPERATION_DELETE = "delete";
     private static final String OK = "ok";
 
+    private static final String DEVICE_ID_NULL = "device id can not be null";
+
     private EventuallyConsistentMap<DeviceId, L3VpnInstances> l3VpnInstancesStore;
     private EventuallyConsistentMap<DeviceId, Bgpcomm> bgpcommStore;
+    private EventuallyConsistentMap<DeviceId, NeData> nedataStore;
 
     private static final String L3VPNINSTANCESTORE = "l3vpn-instances-store";
     private static final String BGPCOMMSTORE = "bgp-comm-store";
+    private static final String NEDATASTORE = "nedata-store";
 
     @Activate
     public void activate() {
@@ -168,6 +173,11 @@ public class L3vpnNeManager implements L3vpnNeService {
                 .withName(BGPCOMMSTORE).withSerializer(serializer)
                 .withTimestampProvider((k, v) -> clockService.getTimestamp())
                 .build();
+        nedataStore = storageService
+                .<DeviceId, NeData>eventuallyConsistentMapBuilder()
+                .withName(BGPCOMMSTORE).withSerializer(serializer)
+                .withTimestampProvider((k, v) -> clockService.getTimestamp())
+                .build();
         log.info("Started");
     }
 
@@ -175,6 +185,7 @@ public class L3vpnNeManager implements L3vpnNeService {
     public void deactivate() {
         l3VpnInstancesStore.clear();
         bgpcommStore.clear();
+        nedataStore.clear();
         log.info("Stopped");
     }
 
@@ -188,14 +199,22 @@ public class L3vpnNeManager implements L3vpnNeService {
         List<VpnAc> vpnAcList = nedata.vpnAcList();
         for (VpnInstance vpnInstance : vpnInstanceList) {
             Map<VrfEntity, HashSet<VpnAc>> vpnAcForVrfMap = new HashMap<VrfEntity, HashSet<VpnAc>>();
-            String neId = vpnInstance.neId();
-            DeviceId deviceId = DeviceId.deviceId(neId);
+            DeviceId deviceId = vpnInstance.neId();
+
+            if (exists(deviceId)) {
+                NeData neData = nedataStore.get(deviceId);
+                neData.vpnInstanceList().addAll(nedata.vpnInstanceList());
+                neData.vpnAcList().addAll(nedata.vpnAcList());
+            } else {
+                nedataStore.put(deviceId, nedata);
+            }
+
             if (mastershipService.isLocalMaster(deviceId)) {
                 List<VrfEntity> vrfList = vpnInstance.vrfList();
                 for (VrfEntity vrfEntity : vrfList) {
                     HashSet<VpnAc> vrfAcs = new HashSet<VpnAc>();
-                    List<String> acIdList = vrfEntity.acIdList();
-                    for (String acId : acIdList) {
+                    List<AcId> acIdList = vrfEntity.acIdList();
+                    for (AcId acId : acIdList) {
                         for (VpnAc vpnAc : vpnAcList) {
                             if (vpnAc.acId().equals(acId)) {
                                 vrfAcs.add(vpnAc);
@@ -336,5 +355,21 @@ public class L3vpnNeManager implements L3vpnNeService {
         configService.applyConfig(deviceId, L3vpnBgpConfig.class,
                                   netconfBgpConfig.node());
         return true;
+    }
+
+    @Override
+    public Collection<NeData> getNeDatas() {
+        return nedataStore.values();
+    }
+
+    @Override
+    public NeData getNeData(DeviceId deviceId) {
+        return nedataStore.get(deviceId);
+    }
+
+    @Override
+    public boolean exists(DeviceId deviceId) {
+        checkNotNull(deviceId, DEVICE_ID_NULL);
+        return nedataStore.containsKey(deviceId);
     }
 }

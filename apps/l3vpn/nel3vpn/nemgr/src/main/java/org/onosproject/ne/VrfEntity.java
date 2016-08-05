@@ -26,11 +26,11 @@ import java.util.Objects;
  */
 public class VrfEntity {
     private final String vrfName;
-    private final String netVpnId;
-    private final String routeDistinguisher;
-    private final List<String> importTargets;
-    private final List<String> exportTargets;
-    private final List<String> acIdList;
+    private final InstanceId netVpnId;
+    private final RouteDistinguisher routeDistinguisher;
+    private final List<RouteTargets> importTargets;
+    private final List<RouteTargets> exportTargets;
+    private final List<AcId> acIdList;
     private final Bgp bgp;
 
     /**
@@ -44,9 +44,9 @@ public class VrfEntity {
      * @param acIdList list of access identifier
      * @param bgp bgp
      */
-    public VrfEntity(String vrfName, String netVpnId, String routeDistinguisher,
-                     List<String> importTargets, List<String> exportTargets,
-                     List<String> acIdList, Bgp bgp) {
+    public VrfEntity(String vrfName, InstanceId netVpnId, RouteDistinguisher routeDistinguisher,
+                     List<RouteTargets> importTargets, List<RouteTargets> exportTargets,
+                     List<AcId> acIdList, Bgp bgp) {
         checkNotNull(vrfName, "vrfName cannot be null");
         checkNotNull(netVpnId, "netVpnId cannot be null");
         checkNotNull(routeDistinguisher, "routeDistinguisher cannot be null");
@@ -73,9 +73,9 @@ public class VrfEntity {
      * @param acIdList list of access identifier
      * @param bgp bgp
      */
-    public VrfEntity(String vrfName, String routeDistinguisher,
-                     List<String> importTargets, List<String> exportTargets,
-                     List<String> acIdList, Bgp bgp) {
+    public VrfEntity(String vrfName, RouteDistinguisher routeDistinguisher,
+                     List<RouteTargets> importTargets, List<RouteTargets> exportTargets,
+                     List<AcId> acIdList, Bgp bgp) {
         checkNotNull(vrfName, "vrfName cannot be null");
         checkNotNull(routeDistinguisher, "routeDistinguisher cannot be null");
         checkNotNull(importTargets, "importTargets cannot be null");
@@ -105,7 +105,7 @@ public class VrfEntity {
      *
      * @return netVpnId
      */
-    public String netVpnId() {
+    public InstanceId netVpnId() {
         return netVpnId;
     }
 
@@ -114,7 +114,7 @@ public class VrfEntity {
      *
      * @return routeDistinguisher
      */
-    public String routeDistinguisher() {
+    public RouteDistinguisher routeDistinguisher() {
         return routeDistinguisher;
     }
 
@@ -123,7 +123,7 @@ public class VrfEntity {
      *
      * @return importTargets
      */
-    public List<String> importTargets() {
+    public List<RouteTargets> importTargets() {
         return importTargets;
     }
 
@@ -132,7 +132,7 @@ public class VrfEntity {
      *
      * @return exportTargets
      */
-    public List<String> exportTargets() {
+    public List<RouteTargets> exportTargets() {
         return exportTargets;
     }
 
@@ -141,7 +141,7 @@ public class VrfEntity {
      *
      * @return acIdList
      */
-    public List<String> acIdList() {
+    public List<AcId> acIdList() {
         return acIdList;
     }
 

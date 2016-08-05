@@ -21,7 +21,11 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.onosproject.codec.CodecService;
+import org.onosproject.yang.gen.v1.net.l3vpn.rev20160701.netl3vpn.acgroup.Acs;
+import org.onosproject.yang.gen.v1.net.l3vpn.rev20160701.netl3vpn.acgroup.acs.Ac;
 import org.onosproject.yang.gen.v1.net.l3vpn.rev20160701.netl3vpn.instances.Instance;
+import org.onosproject.yang.gen.v1.net.l3vpn.rev20160701.netl3vpn.instances.instance.Nes;
+import org.onosproject.yang.gen.v1.net.l3vpn.rev20160701.netl3vpn.instances.instance.nes.Ne;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +44,10 @@ public class Netl3vpnCodecRegistrator {
     @Activate
     public void activate() {
         codecService.registerCodec(Instance.class, new InstanceCodec());
+        codecService.registerCodec(Ac.class, new AcCodec());
+        codecService.registerCodec(Acs.class, new AcsCodec());
+        codecService.registerCodec(Ne.class, new NeCodec());
+        codecService.registerCodec(Nes.class, new NesCodec());
         log.info("Started");
     }
 
