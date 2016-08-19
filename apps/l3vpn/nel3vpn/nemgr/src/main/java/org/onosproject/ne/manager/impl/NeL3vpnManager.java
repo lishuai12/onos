@@ -175,7 +175,7 @@ public class NeL3vpnManager implements NeL3vpnService {
                 .build();
         nedataStore = storageService
                 .<DeviceId, NeData>eventuallyConsistentMapBuilder()
-                .withName(BGPCOMMSTORE).withSerializer(serializer)
+                .withName(NEDATASTORE).withSerializer(serializer)
                 .withTimestampProvider((k, v) -> clockService.getTimestamp())
                 .build();
         log.info("Started");
